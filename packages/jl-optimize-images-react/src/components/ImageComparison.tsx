@@ -194,20 +194,14 @@ export const ImageComparison: React.FC<ImageComparisonProps> = ({
 
       {/* Foreground / Original Image (left side clipped by sliderPosition) */}
       <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ width: `${sliderPosition}%` }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
       >
-        <div
-          className="absolute inset-0 w-full h-full"
-          style={{ width: containerRef.current ? `${containerRef.current.clientWidth}px` : '100vw', height: '100%' }}
-        >
-          <img
-            src={originalUrl}
-            alt="Original"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            style={{ width: containerRef.current ? `${containerRef.current.clientWidth}px` : '100vw', height: '100%', maxWidth: 'none' }}
-          />
-        </div>
+        <img
+          src={originalUrl}
+          alt="Original"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
 
         {renderOriginalBadge ? renderOriginalBadge(originalSize) : defaultRenderOriginalBadge()}
       </div>

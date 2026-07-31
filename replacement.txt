@@ -1,0 +1,21 @@
+          <ImageComparison
+            originalUrl={selectedImage.originalUrl}
+            originalSize={selectedImage.originalSize}
+            compressedUrl={selectedImage.result?.dataUrl}
+            compressedSize={selectedImage.result?.compressedSize}
+            isCompressing={selectedImage.isCompressing}
+            className="flex-1 border border-zinc-800/80 rounded-3xl bg-black shadow-2xl"
+          />
+
+          <ImageGallery
+            images={images.map(img => ({
+              id: img.id,
+              originalUrl: img.originalUrl,
+              name: img.file.name,
+              isCompressing: img.isCompressing,
+              hasResult: !!img.result,
+            }))}
+            selectedId={selectedImage.id}
+            onSelect={setSelectedId}
+            onRemove={removeImage}
+          />

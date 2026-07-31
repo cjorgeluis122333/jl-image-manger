@@ -1,0 +1,6 @@
+{
+  "name": "Image Compressor Monorepo",
+  "description": "A monorepo with a pure TypeScript image compression library in packages/ and a React real-time compression preview app in app/.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

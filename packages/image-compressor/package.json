@@ -1,0 +1,24 @@
+{
+  "name": "jl-optimize-images",
+  "version": "1.0.0",
+  "description": "Pure TypeScript image compression library with zero framework dependencies",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "image",
+    "compression",
+    "compressor",
+    "optimizer",
+    "typescript",
+    "vanilla-js"
+  ],
+  "author": "AI Studio",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "~5.8.2"
+  }
+}

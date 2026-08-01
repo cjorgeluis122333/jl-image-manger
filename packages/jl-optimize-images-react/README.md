@@ -1,33 +1,33 @@
 # jl-optimize-images-react 🎨⚛️
 
-La capa de integración oficial de **React** para la potente librería de compresión de imágenes [jl-optimize-images](../image-compressor). 
+The official **React** integration layer for the powerful [jl-optimize-images](../image-compressor) in-browser image compression library.
 
-Ofrece componentes interactivos y hooks de alto rendimiento listos para producción para la compresión por lotes, previsualización en tiempo real tipo slider (*Before/After*), gestor de miniaturas y descargas seguras en archivos ZIP con renombrado automático contra colisiones de nombres.
-
----
-
-## ✨ Características Principales
-
-- 🔄 **`useImageOptimizer` Hook**: Gestiona lotes, estados de carga, re-compresión individual ultra rápida en milisegundos gracias al caché de `ImageBitmap`, y descargas en archivos ZIP.
-- 🎚️ **Componente `ImageComparison` (Antes/Después)**: 
-  - Slider interactivo y responsivo.
-  - Soporte completo para gestos táctiles fluidos (`touch-none`) que no interfieren con el scroll vertical de la página.
-  - Accesibilidad integrada (a11y) con soporte para teclado (flechas, Home, End).
-  - Soporte de Zoom y Pan (arrastre) interactivo para inspeccionar macrobloques de compresión a nivel de píxel.
-- 🖼️ **Componente `ImageGallery`**: Visualiza y gestiona las miniaturas del lote actual, permitiendo cambiar la imagen activa o eliminar elementos liberando recursos de memoria de inmediato.
-- 🌐 **Internacionalización (i18n) Nativa**: Soporta configuraciones de idioma en español (`'es'`) e inglés (`'en'`) out-of-the-box, además de permitir la personalización completa de etiquetas y textos de ayuda.
+Provides production-ready, highly interactive React components and hooks for batch image compression, real-time comparison sliders (*Before/After*), thumbnail management, and secure batch downloading in ZIP files with automatic duplicate filename collision handling.
 
 ---
 
-## 📥 Instalación
+## ✨ Key Features
 
-Instala el paquete en tu proyecto de React junto con sus dependencias:
+- 🔄 **`useImageOptimizer` Hook**: Streamlines batch management, loading states, lightning-fast quality re-compression in milliseconds using `ImageBitmap` caching, and bulk ZIP exports.
+- 🎚️ **`<ImageComparison />` Component (Before/After)**:
+  - Highly responsive and interactive comparison slider.
+  - Complete support for fluid touch gestures (`touch-none`) that do not interfere with page scrolling.
+  - Fully accessible (a11y) with native keyboard support (arrow keys, Home, End).
+  - Interactive wheel zoom and click-drag panning to inspect compression macroblocks and artifacts at a pixel level.
+- 🖼️ **`<ImageGallery />` Component**: Displays and manages thumbnails of the active batch, letting users switch selected previews or delete files to instantly release memory resources.
+- 🌐 **Native Localization (i18n)**: Out-of-the-box support for English (`'en'`) and Spanish (`'es'`), alongside fully customizable text labels and helpful hints.
+
+---
+
+## 📥 Installation
+
+Install the package in your React project along with its peer dependencies:
 
 ```bash
 npm install jl-optimize-images-react jl-optimize-images lucide-react jszip
 ```
 
-o con yarn / pnpm / bun:
+or using yarn / pnpm / bun:
 
 ```bash
 yarn add jl-optimize-images-react jl-optimize-images lucide-react jszip
@@ -37,9 +37,9 @@ bun add jl-optimize-images-react jl-optimize-images lucide-react jszip
 
 ---
 
-## 🚀 Uso Básico (Compresor Simple)
+## 🚀 Quick Start (Single Comparison Slider)
 
-A continuación se muestra un ejemplo simple de cómo integrar un comparador interactivo para una sola imagen:
+Here is a straightforward example demonstrating how to integrate an interactive image comparison slider:
 
 ```tsx
 import React from 'react';
@@ -49,9 +49,9 @@ export function SimpleDemo() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <ImageComparison
-        originalUrl="https://ejemplo.com/paisaje-original.jpg"
+        originalUrl="https://example.com/landscape-original.jpg"
         originalSize={2048576} // 2.0 MB
-        compressedUrl="https://ejemplo.com/paisaje-comprimido.webp"
+        compressedUrl="https://example.com/landscape-compressed.webp"
         compressedSize={307200} // 300 KB
         className="h-[400px] rounded-2xl shadow-lg bg-slate-900"
       />
@@ -62,9 +62,9 @@ export function SimpleDemo() {
 
 ---
 
-## 💎 Uso Avanzado (Procesamiento por Lotes y Descarga ZIP)
+## 💎 Advanced Usage (Batch Processing & ZIP Export)
 
-El hook `useImageOptimizer` se encarga de automatizar todo el ciclo de vida: pre-carga de memoria, compresión concurrente en segundo plano, y generación segura del archivo comprimido `.zip`.
+The `useImageOptimizer` hook automates the complete lifecycle: pre-loading into GPU memory, concurrent background processing, memory deallocation, and safe ZIP packaging.
 
 ```tsx
 import React from 'react';
@@ -85,12 +85,12 @@ export function AdvancedDemo() {
     quality: 0.8,
     mimeType: 'image/webp',
     maxWidth: 1200,
-    locale: 'es' // Idioma de ayuda: 'es' o 'en'
+    locale: 'en' // Interface locale: 'en' or 'es'
   });
 
   return (
     <div className="flex flex-col md:flex-row gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-150">
-      {/* Panel Lateral de Controles */}
+      {/* Sidebar Controls */}
       <div className="w-full md:w-80 flex flex-col gap-4">
         <input
           type="file"
@@ -103,22 +103,22 @@ export function AdvancedDemo() {
         {images.length > 0 && (
           <>
             <button
-              onClick={() => downloadZip('mis_imagenes_optimizadas.zip')}
+              onClick={() => downloadZip('optimized_batch.zip')}
               className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow-sm"
             >
-              Descargar Lote (.ZIP)
+              Download Batch (.ZIP)
             </button>
             <button
               onClick={clearImages}
               className="w-full py-2.5 border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-xl text-xs transition"
             >
-              Limpiar Todo
+              Clear All
             </button>
           </>
         )}
       </div>
 
-      {/* Visor Principal */}
+      {/* Main Preview Container */}
       <div className="flex-1 flex flex-col gap-4">
         {activeImage ? (
           <>
@@ -146,7 +146,7 @@ export function AdvancedDemo() {
           </>
         ) : (
           <div className="h-[450px] border border-dashed border-slate-300 rounded-2xl flex items-center justify-center text-slate-400 bg-white">
-            Sube o arrastra imágenes para comenzar a optimizar
+            Upload or drag images to start optimizing
           </div>
         )}
       </div>
@@ -157,64 +157,64 @@ export function AdvancedDemo() {
 
 ---
 
-## 📖 Referencia de la API (React)
+## 📖 API Reference (React)
 
 ### `useImageOptimizer(options)`
 
-#### Parámetros (`UseImageOptimizerOptions`)
+#### Parameters (`UseImageOptimizerOptions`)
 
-| Opción | Tipo | Por Defecto | Descripción |
+| Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `quality` | `number` | `0.85` | Calidad de la compresión (rango de `0.01` a `1.0`). |
-| `mimeType` | `'image/webp' \| 'image/jpeg' \| 'image/png'` | `'image/webp'` | Formato MIME de las imágenes optimizadas. |
-| `maxWidth` | `number` | `undefined` | Ancho máximo en píxeles. |
-| `maxHeight` | `number` | `undefined` | Alto máximo en píxeles. |
-| `maintainAspectRatio` | `boolean` | `true` | Mantener proporciones al redimensionar. |
-| `locale` | `'es' \| 'en'` | `'es'` | Selector de idioma de visualización de los componentes. |
+| `quality` | `number` | `0.85` | Compression quality (range from `0.01` to `1.0`). |
+| `mimeType` | `'image/webp' \| 'image/jpeg' \| 'image/png'` | `'image/webp'` | Export MIME format. |
+| `maxWidth` | `number` | `undefined` | Maximum image width constraint in pixels. |
+| `maxHeight` | `number` | `undefined` | Maximum image height constraint in pixels. |
+| `maintainAspectRatio` | `boolean` | `true` | Maintain proportions while resizing. |
+| `locale` | `'en' \| 'es'` | `'es'` | Locale language for component tooltips and labels. |
 
-#### Valores de Retorno
+#### Return Value
 
 ```typescript
 {
-  images: OptimizerImage[];             // Lista de imágenes procesadas y en procesamiento
-  selectedId: string | null;           // ID de la imagen seleccionada para previsualización
-  activeImage: OptimizerImage | null;   // Atajo al objeto de la imagen activa seleccionada
-  addFiles: (files: FileList | File[]) => Promise<void>; // Función para agregar imágenes al lote
-  removeFile: (id: string) => void;     // Elimina una imagen y libera sus ObjectURL
-  clearImages: () => void;              // Vacía el lote completo y libera todos los recursos
-  downloadZip: (filename?: string) => Promise<void>; // Genera y descarga un archivo ZIP con nombres sanos
+  images: OptimizerImage[];             // List of loaded images in processing or completed states
+  selectedId: string | null;           // ID of the active selected image
+  activeImage: OptimizerImage | null;   // Active selected image object reference
+  addFiles: (files: FileList | File[]) => Promise<void>; // Add new files to optimizer batch queue
+  removeFile: (id: string) => void;     // Remove file and release its object URLs and references
+  clearImages: () => void;              // Reset batch queue and clean up all loaded memory references
+  downloadZip: (filename?: string) => Promise<void>; // Compile active batch into a single ZIP with clean naming
 }
 ```
 
 ---
 
-### Componente `<ImageComparison />`
+### `<ImageComparison />` Component
 
-| Propiedad | Tipo | Por Defecto | Descripción |
+| Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `originalUrl` | `string` | `''` | URL o Data URL de la imagen original (lado izquierdo). |
-| `originalSize` | `number` | `undefined` | Peso original en bytes para mostrar en la etiqueta. |
-| `compressedUrl` | `string` | `''` | URL o Data URL de la imagen comprimida (lado derecho). |
-| `compressedSize` | `number` | `undefined` | Peso comprimido en bytes para mostrar en la etiqueta. |
-| `isCompressing` | `boolean` | `false` | Indica si el motor de fondo sigue procesando la imagen. |
-| `locale` | `'es' \| 'en'` | `'es'` | Idioma para el slider y los textos de control. |
-| `className` | `string` | `''` | Clases Tailwind personalizadas para el contenedor exterior. |
+| `originalUrl` | `string` | `''` | URL or Data URL of the original input image (left-hand side). |
+| `originalSize` | `number` | `undefined` | Original image size in bytes for the information tags. |
+| `compressedUrl` | `string` | `''` | URL or Data URL of the compressed output image (right-hand side). |
+| `compressedSize` | `number` | `undefined` | Compressed image size in bytes for the information tags. |
+| `isCompressing` | `boolean` | `false` | When `true`, displays a progress indicator on the comparison canvas. |
+| `locale` | `'en' \| 'es'` | `'es'` | Localization language configuration. |
+| `className` | `string` | `''` | Tailwind or CSS class string targeting the main layout. |
 
 ---
 
-### Componente `<ImageGallery />`
+### `<ImageGallery />` Component
 
-| Propiedad | Tipo | Por Defecto | Descripción |
+| Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `images` | `GalleryImage[]` | `[]` | Listado de miniaturas con formato `{ id, originalUrl, compressedUrl, isCompressing, hasResult }`. |
-| `selectedId` | `string \| null` | `null` | ID del elemento seleccionado activamente. |
-| `onSelect` | `(id: string) => void` | (Requerido) | Callback invocado al hacer clic en una miniatura. |
-| `onRemove` | `(id: string) => void` | (Requerido) | Callback invocado al pulsar el botón de eliminar. |
-| `locale` | `'es' \| 'en'` | `'es'` | Idioma de los tooltips de interactividad. |
-| `hideIfSingle` | `boolean` | `false` | Oculta la galería si sólo hay una imagen disponible. |
+| `images` | `GalleryImage[]` | `[]` | Array of image elements following `{ id, originalUrl, compressedUrl, isCompressing, hasResult }`. |
+| `selectedId` | `string \| null` | `null` | Active highlighted thumbnail ID. |
+| `onSelect` | `(id: string) => void` | (Required) | Callback triggered upon clicking a thumbnail. |
+| `onRemove` | `(id: string) => void` | (Required) | Callback triggered upon clicking the remove icon. |
+| `locale` | `'en' \| 'es'` | `'es'` | Localization language configuration. |
+| `hideIfSingle` | `boolean` | `false` | Hides the gallery element if only one thumbnail is active. |
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
 MIT © [jl-optimize-images-react](https://github.com/jlcpabonisquierdo)

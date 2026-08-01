@@ -1,34 +1,34 @@
 # jl-optimize-images 🚀
 
-Una librería ligera, ultra-rápida y pura en **TypeScript/JavaScript** sin dependencias externas para comprimir, pre-cargar y redimensionar imágenes directamente en el navegador de forma altamente eficiente.
+A lightweight, ultra-fast, pure **TypeScript/JavaScript** library with zero external dependencies to compress, pre-load, and resize images directly in the browser with high efficiency.
 
-Perfecta para optimizar avatares, fotos de perfil, imágenes de e-commerce y cualquier subida de archivos antes de enviarla al servidor, mejorando la experiencia de usuario y reduciendo drásticamente el consumo de ancho de banda.
-
----
-
-## ✨ Características de Alto Rendimiento
-
-- 📦 **Zero Dependencias**: Código nativo optimizado con Canvas API y APIs modernas del navegador.
-- ⚡ **Caché de Decodificación de Hardware (`ImageBitmap`)**: Decodifica la imagen una sola vez en la GPU/memoria de gráficos. Las compresiones repetidas o ajustes interactivos (como barras deslizadoras de calidad) toman milisegundos sin re-decodificar el archivo de origen.
-- 📸 **Rotación Automática EXIF**: Utiliza `createImageBitmap(blob, { imageOrientation: 'from-image' })` para corregir de forma nativa y automática la orientación de fotos tomadas con teléfonos móviles o cámaras.
-- 📉 **Escalado Step-Down (Múltiples Pasos)**: Algoritmo de reducción progresiva a la mitad para evitar artefactos de aliasing (píxeles dentados) y conservar la máxima nitidez incluso en reducciones extremas de resolución.
-- 🟢 **Prevención de Congelamiento de UI (`yieldToMain`)**: Divide el procesamiento pesado en tareas asíncronas cediendo periódicamente el control al bucle de eventos del navegador (`scheduler.yield()` o `MessageChannel`), manteniendo la interfaz a 60 FPS estables.
-- 🎨 **Soporte Multi-Formato**: Exportación nativa a `image/webp`, `image/jpeg` e `image/png`.
-- ⚙️ **Control de Dimensiones**: Ajuste en vivo de calidad (`quality`), dimensiones máximas (`maxWidth`, `maxHeight`) y color de fondo para transparencias (`backgroundColor`).
-- 📐 **Relación de Aspecto Flexible**: Mantiene la proporción original por defecto, o permite forzar dimensiones exactas (`maintainAspectRatio: false`).
-- 📊 **Analíticas Detalladas**: Retorna tamaños exactos (original vs comprimido) y el porcentaje de ahorro real de forma inmediata.
+Perfect for optimizing avatars, profile pictures, e-commerce product photos, and any file upload before sending it to the server, improving user experience and drastically reducing bandwidth consumption.
 
 ---
 
-## 📥 Instalación
+## ✨ High-Performance Features
 
-Instala el paquete usando tu gestor de paquetes favorito:
+- 📦 **Zero Dependencies**: Native code optimized using the Canvas API and modern browser APIs.
+- ⚡ **Hardware-Accelerated Decoding Cache (`ImageBitmap`)**: Decodes the image only once on the GPU/graphics memory. Subsequent compressions or real-time interactive adjustments (like quality sliders) take milliseconds without re-decoding the source file.
+- 📸 **Automatic EXIF Orientation**: Natively and automatically corrects the orientation of photos taken with mobile phones or cameras using `createImageBitmap(blob, { imageOrientation: 'from-image' })`.
+- 📉 **Fractional Step-Down Scaling**: A progressive halving downscaling algorithm to prevent aliasing artifacts (jagged pixels) and maintain maximum sharpness even during extreme resolution reductions.
+- 🟢 **Smooth UI Thread Preservation (`yieldToMain`)**: Splits heavy batch processing into asynchronous tasks, periodically yielding control to the browser's event loop (`scheduler.yield()` or `MessageChannel`), keeping the UI at a stable, responsive 60 FPS.
+- 🎨 **Multi-Format Support**: Native export to `image/webp`, `image/jpeg`, and `image/png`.
+- ⚙️ **Dimension Control**: On-the-fly adjustment of quality (`quality`), maximum dimensions (`maxWidth`, `maxHeight`), and background color for transparencies (`backgroundColor`).
+- 📐 **Flexible Aspect Ratio**: Maintains the original ratio by default, or allows forcing exact dimensions (`maintainAspectRatio: false`).
+- 📊 **Detailed Analytics**: Returns exact sizes (original vs compressed) and the real weight savings percentage immediately.
+
+---
+
+## 📥 Installation
+
+Install the package using your favorite package manager:
 
 ```bash
 npm install jl-optimize-images
 ```
 
-o con yarn / pnpm / bun:
+or with yarn / pnpm / bun:
 
 ```bash
 yarn add jl-optimize-images
@@ -38,40 +38,40 @@ bun add jl-optimize-images
 
 ---
 
-## 🚀 Uso Rápido
+## 🚀 Quick Start
 
-El proceso se basa en instanciar la clase `ImageCompressor` con tu imagen original y llamar al método `compress()`.
+The process is based on instantiating the `ImageCompressor` class with your original image and calling the `compress()` method.
 
 ```typescript
 import { ImageCompressor } from 'jl-optimize-images';
 
-// 1. Instanciar la clase con un archivo (por ejemplo, desde un input HTML)
+// 1. Instantiate the class with a file (e.g., from an HTML input)
 const file = event.target.files[0];
 const compressor = new ImageCompressor(file);
 
-// Opcional pero recomendado para UI interactivas: Pre-cargar el ImageBitmap en memoria
+// Optional but highly recommended for interactive UIs: pre-load ImageBitmap into memory
 await compressor.preload();
 
-// 2. Comprimir usando las opciones por defecto (calidad 85% y formato webp)
+// 2. Compress using default options (85% quality and webp format)
 const result = await compressor.compress();
 
-// 3. ¡Listo para usar o subir!
+// 3. Ready to use or upload!
 console.log(`Original: ${result.originalSize} bytes`);
-console.log(`Comprimido: ${result.compressedSize} bytes`);
-console.log(`Ahorro: ${result.savingsPercentage.toFixed(1)}%`);
+console.log(`Compressed: ${result.compressedSize} bytes`);
+console.log(`Savings: ${result.savingsPercentage.toFixed(1)}%`);
 
-// Puedes asignar result.dataUrl a un <img> para previsualizarlo
+// You can assign result.dataUrl to an <img> for immediate preview
 document.getElementById('preview-avatar').src = result.dataUrl;
 
-// Recuerda liberar la memoria interna del compressor cuando ya no lo necesites
+// Remember to release internal memory of the compressor when no longer needed
 compressor.dispose();
 ```
 
 ---
 
-## 🛠️ Ejemplos de Configuración Avanzada
+## 🛠️ Advanced Configuration Examples
 
-### 1. Optimización Estándar para Avatares (Max 400x400)
+### 1. Standard Optimization for Avatars (Max 400x400)
 ```typescript
 const result = await compressor.compress({
   maxWidth: 400,
@@ -80,16 +80,16 @@ const result = await compressor.compress({
 });
 ```
 
-### 2. Conversión con Fondo de Relleno (PNG transparente a JPEG blanco)
+### 2. Conversion with Background Fill (Transparent PNG to White JPEG)
 ```typescript
 const result = await compressor.compress({
   quality: 0.85,
   mimeType: 'image/jpeg',
-  backgroundColor: '#ffffff' // Rellena el fondo transparente para evitar fondo negro en JPEG
+  backgroundColor: '#ffffff' // Fills transparent areas to prevent a black background in JPEG
 });
 ```
 
-### 3. Procesamiento en Lotes Concurrentes Eficiente
+### 3. Efficient Concurrent Batch Processing
 ```typescript
 import { compressBatch } from 'jl-optimize-images';
 
@@ -97,64 +97,64 @@ const files = event.target.files; // FileList
 const batchResults = await compressBatch(files, {
   quality: 0.8,
   mimeType: 'image/webp',
-  concurrency: 3 // Límite de procesamiento paralelo para no ahogar hilos del cliente
+  concurrency: 3 // Parallel processing limit to avoid locking up client execution threads
 });
 ```
 
 ---
 
-## 📖 Referencia de la API
+## 📖 API Reference
 
-### Clase `ImageCompressor`
+### `ImageCompressor` Class
 
 ```typescript
 class ImageCompressor {
   constructor(source: File | Blob);
   
   /**
-   * Pre-carga el recurso decodificándolo como un ImageBitmap de alto rendimiento.
+   * Pre-loads the resource by decoding it into a high-performance ImageBitmap.
    */
   preload(): Promise<void>;
 
   /**
-   * Ejecuta la compresión aplicando las opciones especificadas.
+   * Performs the compression applying specified options.
    */
   compress(options?: CompressionOptions): Promise<CompressionResult>;
 
   /**
-   * Libera la memoria del ImageBitmap almacenado en la caché.
+   * Releases the ImageBitmap memory stored in cache.
    */
   dispose(): void;
 }
 ```
 
-### Opciones de Compresión (`CompressionOptions`)
+### Compression Options (`CompressionOptions`)
 
-| Propiedad | Tipo | Por Defecto | Descripción |
+| Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `quality` | `number` | `0.85` | Calidad de salida de la compresión (rango de `0.01` a `1.0`). |
-| `maxWidth` | `number` | `undefined` | Ancho máximo de la imagen resultante en píxeles. |
-| `maxHeight` | `number` | `undefined` | Alto máximo de la imagen resultante en píxeles. |
-| `mimeType` | `'image/jpeg' \| 'image/webp' \| 'image/png'` | `'image/webp'` | Formato MIME de salida deseado. |
-| `maintainAspectRatio` | `boolean` | `true` | Si es `true`, redimensiona manteniendo la proporción original. |
-| `backgroundColor` | `string` | `undefined` | Color de fondo (ej: `'#ffffff'`) al rellenar transparencias de PNG/WebP a formatos sin canal alfa (JPEG). |
+| `quality` | `number` | `0.85` | Compression output quality (range from `0.01` to `1.0`). |
+| `maxWidth` | `number` | `undefined` | Maximum width of the resulting image in pixels. |
+| `maxHeight` | `number` | `undefined` | Maximum height of the resulting image in pixels. |
+| `mimeType` | `'image/jpeg' \| 'image/webp' \| 'image/png'` | `'image/webp'` | Desired output MIME format. |
+| `maintainAspectRatio` | `boolean` | `true` | If `true`, resizes while maintaining the original proportions. |
+| `backgroundColor` | `string` | `undefined` | Background color (e.g. `'#ffffff'`) to fill transparent areas of PNG/WebP when exporting to formats without an alpha channel (JPEG). |
 
-### Resultado de la Compresión (`CompressionResult`)
+### Compression Result (`CompressionResult`)
 
-El método `compress()` resuelve una promesa con un objeto que contiene:
+The `compress()` method resolves a promise containing:
 
 ```typescript
 interface CompressionResult {
-  file: File;               // El nuevo archivo comprimido en formato File
-  dataUrl: string;          // Representación en base64 para previsualizaciones inmediatas
-  originalSize: number;     // Peso de la imagen original en bytes
-  compressedSize: number;   // Peso de la imagen comprimida resultante en bytes
-  savingsPercentage: number; // Porcentaje de ahorro de peso conseguido (0 a 100)
+  file: File;               // The newly compressed file in File format
+  dataUrl: string;          // base64 representation for immediate previews
+  originalSize: number;     // Original image size in bytes
+  compressedSize: number;   // Resulting compressed image size in bytes
+  savingsPercentage: number; // Size savings percentage achieved (0 to 100)
 }
 ```
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
 MIT © [jl-optimize-images](https://github.com/jlcpabonisquierdo)

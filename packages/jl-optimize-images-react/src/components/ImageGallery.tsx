@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, RefreshCw, Trash2 } from 'lucide-react';
+import { SupportedLocale, getLabels } from '../i18n';
 
 export interface ImageGalleryItem {
   id: string;
@@ -9,11 +10,21 @@ export interface ImageGalleryItem {
   hasResult?: boolean;
 }
 
+export interface ImageGalleryLabels {
+  delete?: string;
+}
+
 export interface ImageGalleryProps {
   images: ImageGalleryItem[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onRemove: (id: string, e: React.MouseEvent) => void;
+  /** Whether to hide the gallery when there is only 1 image (default: false) */
+  hideIfSingle?: boolean;
+  /** Locale language ('es' | 'en'). Default: 'es' */
+  locale?: SupportedLocale;
+  /** Configurable text labels for i18n */
+  labels?: ImageGalleryLabels;
   className?: string;
   style?: React.CSSProperties;
   customClasses?: {
@@ -47,6 +58,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   selectedId,
   onSelect,
   onRemove,
+  hideIfSingle = false,
+  locale = 'es',
+  labels = {},
   className = '',
   style,
   customClasses = {},
@@ -56,7 +70,11 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   renderCompressingOverlay,
   renderSuccessBadge,
 }) => {
-  if (images.length <= 1) return null;
+  const resolvedLabels = getLabels(locale, labels as any);
+  const deleteLabel = resolvedLabels.delete;
+
+  if (images.length === 0) return null;
+  if (hideIfSingle && images.length === 1) return null;
 
   const defaultRenderCompressingOverlay = () => (
     <div className={customClasses.compressingOverlay || "absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl"}>
@@ -75,7 +93,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
       onClick={(e) => onRemove(id, e)}
       className={customClasses.removeButton || "absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"}
       style={customStyles.removeButton}
-      title="Eliminar"
+      title={deleteLabel}
+      aria-label={deleteLabel}
     >
       <Trash2 className={customClasses.removeButtonIcon || "w-3 h-3"} />
     </button>

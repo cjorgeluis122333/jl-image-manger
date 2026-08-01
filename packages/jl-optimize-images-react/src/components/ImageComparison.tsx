@@ -1,213 +1,255 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { MoveHorizontal, RefreshCw } from 'lucide-react';
-import { formatBytes } from 'jl-optimize-images';
+import { MoveHorizontal } from 'lucide-react';
 
 export interface ImageComparisonProps {
-  originalUrl: string;
-  originalSize: number;
+  leftImage?: string;
+  rightImage?: string;
+  originalUrl?: string;
   compressedUrl?: string;
+  originalSize?: number;
   compressedSize?: number;
   isCompressing?: boolean;
+  leftImageAlt?: string;
+  rightImageAlt?: string;
   className?: string;
   style?: React.CSSProperties;
-  customClasses?: {
-    container?: string;
-    compressingOverlay?: string;
-    compressingSpinner?: string;
-    compressingText?: string;
-    waitingText?: string;
-    badgeCompressed?: string;
-    badgeOriginal?: string;
-    badgeDotCompressed?: string;
-    badgeDotOriginal?: string;
-    splitterBar?: string;
-    splitterHandle?: string;
-    splitterIcon?: string;
-  };
-  customStyles?: {
-    container?: React.CSSProperties;
-    compressingOverlay?: React.CSSProperties;
-    badgeCompressed?: React.CSSProperties;
-    badgeOriginal?: React.CSSProperties;
-    splitterBar?: React.CSSProperties;
-    splitterHandle?: React.CSSProperties;
-  };
-  renderCompressingOverlay?: () => React.ReactNode;
-  renderCompressedBadge?: (size: number | undefined) => React.ReactNode;
-  renderOriginalBadge?: (size: number) => React.ReactNode;
-  renderSplitter?: (position: number) => React.ReactNode;
+  children?: React.ReactNode;
+  sliderColor?: string;
+  /**
+   * Muestra una cuadrícula de transparencia de fondo, muy útil para
+   * comparar imágenes PNG/WebP con formatos sin canal alfa como JPEG.
+   */
+  showTransparencyGrid?: boolean;
+  /**
+   * Ajuste de la imagen dentro del contenedor.
+   * 'contain' es ideal para visualizar la imagen completa sin recortar.
+   */
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
 }
 
 export const ImageComparison: React.FC<ImageComparisonProps> = ({
+  leftImage,
+  rightImage,
   originalUrl,
-  originalSize,
   compressedUrl,
+  originalSize,
   compressedSize,
-  isCompressing = false,
+  isCompressing,
+  leftImageAlt = 'Left Image',
+  rightImageAlt = 'Right Image',
   className = '',
   style,
-  customClasses = {},
-  customStyles = {},
-  renderCompressingOverlay,
-  renderCompressedBadge,
-  renderOriginalBadge,
-  renderSplitter,
+  children,
+  sliderColor = '#3b82f6', // blue-500
+  showTransparencyGrid = true,
+  objectFit = 'contain',
 }) => {
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
+  const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const startPanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const finalLeftImage = leftImage || originalUrl || '';
+  const finalRightImage = rightImage || compressedUrl || '';
+
+  // Reset zoom and pan when images change
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [finalLeftImage, finalRightImage]);
 
   const handleSliderMove = useCallback(
     (clientX: number) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      const percentage = (x / rect.width) * 100;
       setSliderPosition(percentage);
     },
     []
   );
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSliderPosition((prev) => Math.max(0, prev - step));
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSliderPosition((prev) => Math.min(100, prev + step));
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      setSliderPosition(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      setSliderPosition(100);
+    }
+  };
+
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDraggingSlider) return;
-      handleSliderMove(e.clientX);
-    };
-
-    const onMouseUp = () => {
+    const handleMouseUp = () => {
       setIsDraggingSlider(false);
+      setIsPanning(false);
     };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isDraggingSlider || !e.touches[0]) return;
-      handleSliderMove(e.touches[0].clientX);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingSlider) {
+        handleSliderMove(e.clientX);
+      } else if (isPanning) {
+        setPan({
+          x: e.clientX - startPanRef.current.x,
+          y: e.clientY - startPanRef.current.y,
+        });
+      }
     };
-
-    const onTouchEnd = () => {
+    const handleTouchEnd = () => {
       setIsDraggingSlider(false);
+      setIsPanning(false);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDraggingSlider && e.touches[0]) {
+        handleSliderMove(e.touches[0].clientX);
+      } else if (isPanning && e.touches[0]) {
+        setPan({
+          x: e.touches[0].clientX - startPanRef.current.x,
+          y: e.touches[0].clientY - startPanRef.current.y,
+        });
+      }
     };
 
-    if (isDraggingSlider) {
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-      window.addEventListener('touchmove', onTouchMove);
-      window.addEventListener('touchend', onTouchEnd);
+    if (isDraggingSlider || isPanning) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleTouchEnd);
     }
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isDraggingSlider, handleSliderMove]);
+  }, [isDraggingSlider, isPanning, handleSliderMove]);
 
-  // Default renders
-  const defaultRenderCompressingOverlay = () => (
-    <div 
-      className={customClasses.compressingOverlay || "absolute inset-0 bg-zinc-950/20 backdrop-blur-md flex flex-col items-center justify-center gap-3 z-10"}
-      style={customStyles.compressingOverlay}
-    >
-      <div className="p-4 bg-zinc-900/90 border border-zinc-800/80 rounded-2xl flex flex-col items-center gap-2 shadow-2xl">
-        <RefreshCw className={customClasses.compressingSpinner || "w-6 h-6 text-blue-400 animate-spin"} />
-        <span className={customClasses.compressingText || "text-[11px] text-zinc-200 font-medium px-1"}>Comprimiendo...</span>
-      </div>
-    </div>
-  );
-
-  const defaultRenderCompressedBadge = () => (
-    <div 
-      className={customClasses.badgeCompressed || "absolute top-4 right-4 z-20 px-3 py-1.5 bg-emerald-950/80 backdrop-blur-md rounded-xl text-xs font-mono text-emerald-300 border border-emerald-500/30 shadow-lg flex items-center gap-2"}
-      style={customStyles.badgeCompressed}
-    >
-      <span className={customClasses.badgeDotCompressed || "w-2 h-2 rounded-full bg-emerald-400"}></span>
-      <span>Comprimido: {compressedSize ? formatBytes(compressedSize) : '...'}</span>
-    </div>
-  );
-
-  const defaultRenderOriginalBadge = () => (
-    <div 
-      className={customClasses.badgeOriginal || "absolute top-4 left-4 z-20 px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-xl text-xs font-mono text-zinc-300 border border-white/10 shadow-lg flex items-center gap-2"}
-      style={customStyles.badgeOriginal}
-    >
-      <span className={customClasses.badgeDotOriginal || "w-2 h-2 rounded-full bg-zinc-400"}></span>
-      <span>Original: {formatBytes(originalSize)}</span>
-    </div>
-  );
-
-  const defaultRenderSplitter = () => (
-    <div
-      className={customClasses.splitterBar || "absolute top-0 bottom-0 w-1 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.8)] z-30 pointer-events-none flex items-center justify-center"}
-      style={{ left: `${sliderPosition}%`, ...customStyles.splitterBar }}
-    >
-      <div 
-        className={customClasses.splitterHandle || "w-8 h-8 rounded-full bg-blue-600 border-2 border-white text-white flex items-center justify-center shadow-xl"}
-        style={customStyles.splitterHandle}
-      >
-        <MoveHorizontal className={customClasses.splitterIcon || "w-4 h-4"} />
-      </div>
-    </div>
-  );
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const zoomSensitivity = 0.005;
+    setZoom((prevZoom) => {
+      const newZoom = Math.max(1, Math.min(15, prevZoom - e.deltaY * zoomSensitivity));
+      if (newZoom === 1) {
+        setPan({ x: 0, y: 0 }); // reset pan when fully zoomed out
+      }
+      return newZoom;
+    });
+  }, []);
 
   return (
     <div
       ref={containerRef}
+      tabIndex={0}
+      role="slider"
+      aria-label="Image comparison slider"
+      aria-valuenow={Math.round(sliderPosition)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      onKeyDown={handleKeyDown}
+      onWheel={handleWheel}
       onMouseDown={(e) => {
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const sliderX = (sliderPosition / 100) * rect.width;
+          const isClickNearSlider = Math.abs(clickX - sliderX) < 30; // 30px hit area
+          
+          if (e.button === 1 || e.altKey || e.shiftKey || (zoom > 1 && !isClickNearSlider)) {
+            e.preventDefault();
+            setIsPanning(true);
+            startPanRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+            return;
+          }
+        }
         setIsDraggingSlider(true);
         handleSliderMove(e.clientX);
       }}
       onTouchStart={(e) => {
-        if (e.touches[0]) {
+        if (e.touches && e.touches[0]) {
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            const sliderX = (sliderPosition / 100) * rect.width;
+            const isTouchNearSlider = Math.abs(touchX - sliderX) < 40;
+            
+            if (zoom > 1 && !isTouchNearSlider) {
+              setIsPanning(true);
+              startPanRef.current = { x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y };
+              return;
+            }
+          }
           setIsDraggingSlider(true);
           handleSliderMove(e.touches[0].clientX);
         }
       }}
-      className={customClasses.container || `relative overflow-hidden select-none cursor-ew-resize flex items-center justify-center ${className}`}
-      style={{ ...customStyles.container, ...style }}
-      id="image-comparison-container"
+      data-dragging={isDraggingSlider}
+      className={`group relative overflow-hidden select-none flex items-center justify-center touch-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${className} ${zoom > 1 && !isDraggingSlider ? 'cursor-move' : 'cursor-ew-resize'}`}
+      style={{ 
+        touchAction: 'none',
+        backgroundImage: showTransparencyGrid ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='%231e1e20'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%231e1e20'/%3E%3Crect x='10' width='10' height='10' fill='%23121214'/%3E%3Crect y='10' width='10' height='10' fill='%23121214'/%3E%3C/svg%3E")` : undefined,
+        backgroundRepeat: showTransparencyGrid ? 'repeat' : undefined,
+        backgroundPosition: showTransparencyGrid ? 'center' : undefined,
+        ...style 
+      }}
     >
-      {/* Background / Compressed Image (right side) */}
-      {compressedUrl ? (
+      {/* Background / Right Image */}
+      {finalRightImage ? (
         <img
-          src={compressedUrl}
-          alt="Comprimida"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          src={finalRightImage}
+          alt={rightImageAlt}
+          className="absolute inset-0 w-full h-full pointer-events-none origin-center"
+          style={{ objectFit, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
         />
-      ) : originalUrl ? (
+      ) : finalLeftImage ? (
         <img
-          src={originalUrl}
-          alt="Original placeholder"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40 blur-[2px]"
+          src={finalLeftImage}
+          alt="Placeholder"
+          className="absolute inset-0 w-full h-full pointer-events-none opacity-40 blur-[4px] grayscale-[50%] origin-center"
+          style={{ objectFit, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
         />
-      ) : (
-        <div className={customClasses.waitingText || "absolute inset-0 flex items-center justify-center text-zinc-500 text-sm"}>
-          Esperando resultado...
-        </div>
-      )}
+      ) : null}
 
-      {/* Compressing Overlay (rendered on top of right side) */}
-      {isCompressing && (
-        renderCompressingOverlay ? renderCompressingOverlay() : defaultRenderCompressingOverlay()
-      )}
-
-      {!isCompressing && (renderCompressedBadge ? renderCompressedBadge(compressedSize) : defaultRenderCompressedBadge())}
-
-      {/* Foreground / Original Image (left side clipped by sliderPosition) */}
+      {/* Foreground / Left Image (clipped by sliderPosition) */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
+        style={{ 
+          clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)`,
+          willChange: 'clip-path'
+        }}
       >
         <img
-          src={originalUrl}
-          alt="Original"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          src={finalLeftImage}
+          alt={leftImageAlt}
+          className="absolute inset-0 w-full h-full pointer-events-none origin-center"
+          style={{ objectFit, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
         />
-
-        {renderOriginalBadge ? renderOriginalBadge(originalSize) : defaultRenderOriginalBadge()}
       </div>
 
       {/* Splitter bar */}
-      {renderSplitter ? renderSplitter(sliderPosition) : defaultRenderSplitter()}
+      <div
+        className="absolute top-0 bottom-0 w-1 shadow-lg z-30 pointer-events-none flex items-center justify-center transition-transform duration-75"
+        style={{ left: `${sliderPosition}%`, backgroundColor: sliderColor, willChange: 'left' }}
+      >
+        <div 
+          className="w-8 h-8 rounded-full border-2 border-white text-white flex items-center justify-center shadow-xl absolute left-1/2 transform -translate-x-1/2"
+          style={{ backgroundColor: sliderColor }}
+        >
+          <MoveHorizontal className="w-4 h-4" />
+        </div>
+      </div>
+
+      {/* Custom Overlays (Badges, Spinners, etc.) */}
+      {children}
     </div>
   );
 };

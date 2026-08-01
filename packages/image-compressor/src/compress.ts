@@ -183,7 +183,7 @@ export async function compressImage(
   options: CompressionOptions = {}
 ): Promise<CompressionResult> {
   const {
-    quality = 0.8,
+    quality = 0.85,
     maxWidth,
     maxHeight,
     mimeType = 'image/webp',
@@ -284,9 +284,15 @@ export async function compressImage(
     const dataUrl = await blobToDataURL(finalBlob);
 
     let fileName = originalName;
-    if (!(input instanceof File)) {
-      const extension = finalMime.split('/')[1] || 'jpg';
-      fileName = `${originalName}.${extension === 'jpeg' ? 'jpg' : extension}`;
+    const extension = finalMime.split('/')[1] || 'jpg';
+    const targetExt = extension === 'jpeg' ? 'jpg' : extension;
+
+    const lastDotIndex = originalName.lastIndexOf('.');
+    if (lastDotIndex !== -1) {
+      const baseName = originalName.slice(0, lastDotIndex);
+      fileName = `${baseName}.${targetExt}`;
+    } else {
+      fileName = `${originalName}.${targetExt}`;
     }
 
     const compressedFile = new File([finalBlob], fileName, { type: finalMime });

@@ -132,13 +132,32 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({ images, selectedId, se
       ) : (
         <div className="flex-1 flex flex-col gap-4 min-h-0">
           <ImageComparison
-            originalUrl={selectedImage.originalUrl}
-            originalSize={selectedImage.originalSize}
-            compressedUrl={selectedImage.result?.dataUrl}
-            compressedSize={selectedImage.result?.compressedSize}
-            isCompressing={selectedImage.isCompressing}
-            className="flex-1 border border-zinc-800/80 rounded-3xl bg-black shadow-2xl"
-          />
+            leftImage={selectedImage.originalUrl}
+            rightImage={selectedImage.result?.dataUrl}
+            objectFit="cover"
+            className="flex-1 border border-zinc-800/80 rounded-3xl bg-black shadow-2xl overflow-hidden"
+          >
+            {selectedImage.isCompressing && (
+              <div className="absolute inset-0 bg-zinc-950/20 backdrop-blur-md flex flex-col items-center justify-center gap-3 z-10 pointer-events-none transition-opacity duration-200">
+                <div className="p-4 bg-zinc-900/90 border border-zinc-800/80 rounded-2xl flex flex-col items-center gap-2 shadow-2xl">
+                  <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
+                  <span className="text-[11px] text-zinc-200 font-medium px-1">Comprimiendo...</span>
+                </div>
+              </div>
+            )}
+            
+            {!selectedImage.isCompressing && (
+              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 bg-emerald-950/80 backdrop-blur-md rounded-xl text-xs font-mono text-emerald-300 border border-emerald-500/30 shadow-lg flex items-center gap-2 pointer-events-none transition-opacity duration-200 group-data-[dragging=true]:opacity-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Comprimida {selectedImage.result?.compressedSize ? formatBytes(selectedImage.result.compressedSize) : '...'}</span>
+              </div>
+            )}
+            
+            <div className="absolute top-4 left-4 z-20 px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-xl text-xs font-mono text-zinc-300 border border-white/10 shadow-lg flex items-center gap-2 pointer-events-none transition-opacity duration-200 group-data-[dragging=true]:opacity-0">
+              <span className="w-2 h-2 rounded-full bg-zinc-400"></span>
+              <span>Original {formatBytes(selectedImage.originalSize)}</span>
+            </div>
+          </ImageComparison>
 
           <ImageGallery
             images={images.map(img => ({

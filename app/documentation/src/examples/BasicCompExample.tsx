@@ -1,96 +1,130 @@
 import React, { useEffect, useState } from 'react';
 import { ImageComparison } from 'jl-optimize-images-react';
 
+function generateProceduralImage(ctx: CanvasRenderingContext2D, width: number, height: number, qualityText: string, isOriginal: boolean) {
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, '#121214'); // deep dark slate
+  grad.addColorStop(0.5, '#1e1b4b'); // dark indigo
+  grad.addColorStop(1, '#020617'); // obsidian
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  // Draw fine high-frequency grid lines (extremely sensitive to compression distortion)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < width; i += 25) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, height);
+    ctx.stroke();
+  }
+  for (let j = 0; j < height; j += 25) {
+    ctx.beginPath();
+    ctx.moveTo(0, j);
+    ctx.lineTo(width, j);
+    ctx.stroke();
+  }
+
+  // Draw vibrant concentric circles (shows JPEG mosquito noise and ringing artifacts)
+  ctx.strokeStyle = '#f43f5e'; // Vibrant Rose
+  ctx.lineWidth = 3;
+  for (let r = 60; r <= 220; r += 30) {
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Intersecting thin diagonal rays
+  ctx.strokeStyle = '#eab308'; // Amber
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(width, height);
+  ctx.moveTo(width, 0);
+  ctx.lineTo(0, height);
+  ctx.stroke();
+
+  // Sharp graphic center element
+  ctx.fillStyle = isOriginal ? '#10b981' : '#3b82f6';
+  ctx.beginPath();
+  ctx.arc(width / 2, height / 2, 45, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Text representation for sharpness evaluation
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('DIAGNÓSTICO CODEC', width / 2, height / 2 - 80);
+
+  ctx.fillStyle = '#38bdf8'; // Sky blue
+  ctx.font = 'bold 20px monospace';
+  ctx.fillText(qualityText, width / 2, height / 2 + 5);
+
+  ctx.fillStyle = '#94a3b8'; // Slate
+  ctx.font = '14px system-ui, sans-serif';
+  ctx.fillText('Scroll / Zoom con rueda para ver los macrobloques de compresión', width / 2, height / 2 + 130);
+}
+
 export function BasicCompExample() {
+  const [quality, setQuality] = useState<number>(0.15);
   const [images, setImages] = useState<{ original: string; compressed: string } | null>(null);
 
   useEffect(() => {
-    // Generate high-quality original canvas
+    // Generate original on canvas
     const origCanvas = document.createElement('canvas');
     origCanvas.width = 800;
     origCanvas.height = 600;
     const ctx1 = origCanvas.getContext('2d');
     if (ctx1) {
-      // Background gradient
-      const grad = ctx1.createLinearGradient(0, 0, 800, 600);
-      grad.addColorStop(0, '#6366f1');
-      grad.addColorStop(1, '#a855f7');
-      ctx1.fillStyle = grad;
-      ctx1.fillRect(0, 0, 800, 600);
-
-      // Draw sharp text & shapes (representing original quality)
-      ctx1.fillStyle = 'white';
-      ctx1.font = 'bold 50px sans-serif';
-      ctx1.textAlign = 'center';
-      ctx1.fillText('Original: Nitidez Máxima', 400, 250);
-      ctx1.font = '24px sans-serif';
-      ctx1.fillText('Mueve el slider para comparar', 400, 320);
-
-      // Draw sharp circles
-      for (let i = 0; i < 5; i++) {
-        ctx1.beginPath();
-        ctx1.arc(150 + i * 120, 450, 40, 0, Math.PI * 2);
-        ctx1.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        ctx1.fill();
-        ctx1.lineWidth = 4;
-        ctx1.strokeStyle = '#f43f5e';
-        ctx1.stroke();
-      }
+      generateProceduralImage(ctx1, 800, 600, 'Calidad: Original (100%)', true);
     }
+    const origUrl = origCanvas.toDataURL('image/jpeg', 1.0);
 
-    // Generate low-quality compressed canvas (compressed image simulation)
+    // Generate compressed on canvas with custom quality parameter
     const compCanvas = document.createElement('canvas');
     compCanvas.width = 800;
     compCanvas.height = 600;
     const ctx2 = compCanvas.getContext('2d');
     if (ctx2) {
-      // Blur and blocky artifacts simulation for compressed look
-      const grad = ctx2.createLinearGradient(0, 0, 800, 600);
-      grad.addColorStop(0, '#4f46e5');
-      grad.addColorStop(1, '#9333ea');
-      ctx2.fillStyle = grad;
-      ctx2.fillRect(0, 0, 800, 600);
-
-      ctx2.fillStyle = '#cbd5e1';
-      ctx2.font = 'bold 48px sans-serif'; // Slightly softer font
-      ctx2.textAlign = 'center';
-      ctx2.fillText('Comprimido (WebP 60%)', 400, 250);
-      ctx2.font = '24px sans-serif';
-      ctx2.fillText('Ahorro del 84% en peso', 400, 320);
-
-      // Draw "blurred/low-quality" circles
-      for (let i = 0; i < 5; i++) {
-        ctx2.beginPath();
-        ctx2.arc(150 + i * 120, 450, 40, 0, Math.PI * 2);
-        ctx2.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx2.fill();
-        ctx2.lineWidth = 3;
-        ctx2.strokeStyle = 'rgba(244, 63, 94, 0.6)';
-        ctx2.stroke();
-      }
+      generateProceduralImage(ctx2, 800, 600, `Calidad: JPEG ${Math.round(quality * 100)}%`, false);
     }
-
-    const origUrl = origCanvas.toDataURL('image/jpeg', 1.0);
-    const compUrl = compCanvas.toDataURL('image/jpeg', 0.2); // Compressed JPEG representation
+    const compUrl = compCanvas.toDataURL('image/jpeg', Math.max(0.01, quality));
 
     setImages({
       original: origUrl,
       compressed: compUrl,
     });
-  }, []);
+  }, [quality]);
 
-  const code = `import React from 'react';
+  const originalSize = 512 * 1024; // Simulated 512 KB original
+  const compressedSize = Math.round(originalSize * (0.04 + 0.96 * Math.pow(quality, 1.6)));
+  const savedPercent = Math.round(((originalSize - compressedSize) / originalSize) * 100);
+
+  const code = `import React, { useState } from 'react';
 import { ImageComparison } from 'jl-optimize-images-react';
 
-export default function MiComparador() {
+export default function MiComparadorInteractivo() {
+  const [quality, setQuality] = useState(0.15);
+
   return (
-    <ImageComparison
-      originalUrl="url_original.jpg"
-      originalSize={1024 * 1024 * 2} // 2 MB
-      compressedUrl="url_comprimido.webp"
-      compressedSize={1024 * 150}    // 150 KB
-      className="h-[400px] rounded-2xl shadow-xl"
-    />
+    <div className="flex flex-col gap-4">
+      <ImageComparison
+        originalUrl="url_original.jpg"
+        originalSize={524288}
+        compressedUrl="url_comprimido.webp"
+        compressedSize={Math.round(524288 * quality)}
+        className="h-[400px] rounded-2xl shadow-xl bg-slate-900"
+      />
+      <input 
+        type="range" 
+        min="0.01" 
+        max="1.0" 
+        step="0.01" 
+        value={quality} 
+        onChange={(e) => setQuality(parseFloat(e.target.value))} 
+      />
+    </div>
   );
 }`;
 
@@ -104,15 +138,48 @@ export default function MiComparador() {
 
       {/* Preview container */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Previsualización en tiempo real</h2>
+        <h2 className="text-lg font-semibold text-slate-900 mb-1">Previsualización interactiva</h2>
+        <p className="text-xs text-slate-500 mb-5">Arrastra el regulador para re-comprimir y el scroll del ratón encima de la imagen para hacer zoom.</p>
+        
         {images ? (
-          <ImageComparison
-            originalUrl={images.original}
-            originalSize={1024 * 1024 * 2.1} // 2.1 MB
-            compressedUrl={images.compressed}
-            compressedSize={1024 * 340} // 340 KB
-            className="h-[400px] border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-inner"
-          />
+          <div className="space-y-6">
+            <ImageComparison
+              originalUrl={images.original}
+              originalSize={originalSize}
+              compressedUrl={images.compressed}
+              compressedSize={compressedSize}
+              className="h-[400px] border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-inner"
+            />
+            
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-semibold text-slate-700">Calidad de Compresión:</span>
+                  <span className="text-sm font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                    {Math.round(quality * 100)}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.01"
+                  max="1.00"
+                  step="0.01"
+                  value={quality}
+                  onChange={(e) => setQuality(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-ew-resize accent-indigo-600"
+                />
+              </div>
+              <div className="flex flex-row md:flex-col justify-between md:text-right border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-6 min-w-[150px]">
+                <span className="text-xs text-slate-500">Peso aproximado:</span>
+                <span className="text-sm font-semibold text-slate-700">
+                  {(compressedSize / 1024).toFixed(1)} KB
+                </span>
+                <span className="text-xs font-medium text-emerald-600 mt-0.5">
+                  Ahorro estimado: -{savedPercent}%
+                </span>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="h-[400px] bg-slate-100 animate-pulse rounded-2xl flex items-center justify-center text-slate-400">
             Cargando lienzo de prueba...

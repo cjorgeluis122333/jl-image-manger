@@ -11,7 +11,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('preview');
 
   // Compression options state
-  const [quality, setQuality] = useState<number>(0.65);
+  const [quality, setQuality] = useState<number>(0.85);
   const [maxWidth, setMaxWidth] = useState<number>(1920);
   const [maxHeight, setMaxHeight] = useState<number>(1080);
   const [useMaxWidth, setUseMaxWidth] = useState<boolean>(true);
@@ -102,12 +102,6 @@ export default function App() {
             setQuality={setQuality}
             mimeType={mimeType}
             setMimeType={setMimeType}
-            useMaxWidth={useMaxWidth}
-            setUseMaxWidth={setUseMaxWidth}
-            maxWidth={maxWidth}
-            setMaxWidth={setMaxWidth}
-            maxHeight={maxHeight}
-            setMaxHeight={setMaxHeight}
             setImages={() => {}}
           />
           <PreviewArea 

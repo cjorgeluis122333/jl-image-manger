@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ImageCompressor, CompressionOptions, CompressionResult } from 'jl-optimize-images';
 import JSZip from 'jszip';
+import { SupportedLocale, LibraryLabels, getLabels } from '../i18n';
 
 export interface OptimizerImage {
   id: string;
@@ -22,11 +23,15 @@ export interface OptimizerImage {
 }
 
 export interface UseImageOptimizerProps {
-  quality: number;
+  quality?: number;
   maxWidth?: number;
   maxHeight?: number;
-  mimeType: string;
+  mimeType?: string;
   maintainAspectRatio?: boolean;
+  /** Locale language ('es' | 'en'). Default: 'es' */
+  locale?: SupportedLocale;
+  /** Configurable text labels for i18n */
+  labels?: Partial<LibraryLabels>;
 }
 
 const areOptionsEqual = (
@@ -45,6 +50,8 @@ const areOptionsEqual = (
 export function useImageOptimizer(options: UseImageOptimizerProps) {
   const [images, setImages] = useState<OptimizerImage[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const resolvedLabels = getLabels(options.locale, options.labels);
 
   const imagesRef = useRef<OptimizerImage[]>(images);
   useEffect(() => {
@@ -67,7 +74,7 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
       if (list.length === 0) return;
 
       const optCheck = {
-        quality: currentOptions.quality ?? 0.65,
+        quality: currentOptions.quality ?? 0.85,
         maxWidth: currentOptions.maxWidth,
         maxHeight: currentOptions.maxHeight,
         mimeType: currentOptions.mimeType ?? 'image/webp',
@@ -124,7 +131,7 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
                     result,
                     isCompressing: false,
                     appliedOptions: {
-                      quality: currentOptions.quality ?? 0.65,
+                      quality: currentOptions.quality ?? 0.85,
                       maxWidth: currentOptions.maxWidth,
                       maxHeight: currentOptions.maxHeight,
                       mimeType: currentOptions.mimeType ?? 'image/webp',
@@ -137,14 +144,14 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
           setImages((prev) =>
             prev.map((img) =>
               img.id === id
-                ? { ...img, isCompressing: false, error: err.message || 'Error compressing' }
+                ? { ...img, isCompressing: false, error: err.message || resolvedLabels.errorCompressing }
                 : img
             )
           );
         }
       }
     },
-    [selectedId]
+    [selectedId, resolvedLabels.errorCompressing]
   );
 
   // Sync / run recompress sequentially when settings change
@@ -217,10 +224,10 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
       });
 
       const currentOptions: CompressionOptions = {
-        quality: options.quality,
+        quality: options.quality ?? 0.85,
         maxWidth: options.maxWidth,
         maxHeight: options.maxHeight,
-        mimeType: options.mimeType as any,
+        mimeType: (options.mimeType ?? 'image/webp') as any,
         maintainAspectRatio: options.maintainAspectRatio,
       };
 
@@ -263,23 +270,24 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
     setSelectedId(null);
   }, []);
 
-  const downloadZip = useCallback(async (zipName = 'imagenes_optimizadas.zip') => {
+  const downloadZip = useCallback(async (customZipName?: string) => {
+    const zipName = customZipName || resolvedLabels.defaultZipName;
     const list = imagesRef.current;
     if (list.length === 0) return;
 
     const currentOptions: CompressionOptions = {
-      quality: options.quality,
+      quality: options.quality ?? 0.85,
       maxWidth: options.maxWidth,
       maxHeight: options.maxHeight,
-      mimeType: options.mimeType as any,
+      mimeType: (options.mimeType ?? 'image/webp') as any,
       maintainAspectRatio: options.maintainAspectRatio,
     };
 
     const optCheck = {
-      quality: options.quality,
+      quality: options.quality ?? 0.85,
       maxWidth: options.maxWidth,
       maxHeight: options.maxHeight,
-      mimeType: options.mimeType,
+      mimeType: options.mimeType ?? 'image/webp',
     };
 
     const zip = new JSZip();
@@ -301,10 +309,10 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
           
           img.result = result;
           img.appliedOptions = {
-            quality: options.quality,
+            quality: options.quality ?? 0.85,
             maxWidth: options.maxWidth,
             maxHeight: options.maxHeight,
-            mimeType: options.mimeType,
+            mimeType: options.mimeType ?? 'image/webp',
           };
           img.isCompressing = false;
         } catch (e) {
@@ -317,11 +325,25 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
     // Sync state
     setImages(updatedImages);
 
-    // Build the ZIP file
+    // Build the ZIP file preventing duplicate filename collisions
+    const usedNames = new Set<string>();
+
     for (const img of updatedImages) {
       if (img.result) {
         try {
-          zip.file(img.result.file.name, img.result.blob);
+          let fileName = img.result.file.name;
+          if (usedNames.has(fileName)) {
+            const lastDotIndex = fileName.lastIndexOf('.');
+            const baseName = lastDotIndex !== -1 ? fileName.slice(0, lastDotIndex) : fileName;
+            const ext = lastDotIndex !== -1 ? fileName.slice(lastDotIndex) : '';
+            let count = 1;
+            while (usedNames.has(`${baseName} (${count})${ext}`)) {
+              count++;
+            }
+            fileName = `${baseName} (${count})${ext}`;
+          }
+          usedNames.add(fileName);
+          zip.file(fileName, img.result.blob);
         } catch (err) {
           console.error(`Error zipping: ${img.file.name}`, err);
         }
@@ -337,7 +359,7 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(zipUrl);
-  }, [options]);
+  }, [options, resolvedLabels.defaultZipName]);
 
   const activeId = selectedId || (images.length > 0 ? images[0].id : null);
   const activeImage = images.find((img) => img.id === activeId) || null;

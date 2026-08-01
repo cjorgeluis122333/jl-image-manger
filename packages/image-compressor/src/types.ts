@@ -1,5 +1,5 @@
 export interface CompressionOptions {
-  /** Quality between 0 and 1 (default: 0.8) */
+  /** Quality between 0 and 1 (default: 0.85) */
   quality?: number;
   /** Maximum width in pixels */
   maxWidth?: number;

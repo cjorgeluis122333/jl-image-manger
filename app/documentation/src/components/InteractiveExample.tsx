@@ -96,36 +96,28 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
 
   const loadTestImage = async () => {
     try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      // A beautiful autumn forest landscape photo with sharp fine details to show off compression
+      img.src = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&h=600&q=80';
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
       const canvas = document.createElement('canvas');
       canvas.width = 800;
       canvas.height = 600;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        const gradient = ctx.createLinearGradient(0, 0, 800, 600);
-        gradient.addColorStop(0, '#4f46e5');
-        gradient.addColorStop(1, '#ec4899');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 800, 600);
+        ctx.drawImage(img, 0, 0, 800, 600);
         
+        // Add a clean banner text
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(20, 20, 220, 45);
         ctx.fillStyle = 'white';
-        ctx.font = 'bold 48px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Imagen de Prueba', 400, 250);
-        ctx.font = '24px sans-serif';
-        ctx.fillText('jl-optimize-images', 400, 320);
-
-        for (let i = 0; i < 20; i++) {
-          ctx.beginPath();
-          ctx.arc(
-            Math.random() * 800, 
-            Math.random() * 600, 
-            Math.random() * 50 + 10, 
-            0, 
-            Math.PI * 2
-          );
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3})`;
-          ctx.fill();
-        }
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText('Imagen de Prueba', 35, 48);
       }
 
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));

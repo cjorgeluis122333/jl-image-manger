@@ -17,12 +17,6 @@ interface SidebarProps {
   setQuality: (val: number) => void;
   mimeType: MimeTypeOption;
   setMimeType: (val: MimeTypeOption) => void;
-  useMaxWidth: boolean;
-  setUseMaxWidth: (val: boolean) => void;
-  maxWidth: number;
-  setMaxWidth: (val: number) => void;
-  maxHeight: number;
-  setMaxHeight: (val: number) => void;
   setImages: (images: ImageItem[]) => void;
 }
 
@@ -40,12 +34,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setQuality,
   mimeType,
   setMimeType,
-  useMaxWidth,
-  setUseMaxWidth,
-  maxWidth,
-  setMaxWidth,
-  maxHeight,
-  setMaxHeight,
   setImages,
 }) => {
   const selectedImage = images.find((img) => img.id === selectedId) || images[0];
@@ -129,41 +117,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })}
           </div>
-        </div>
-
-        {/* Resolution Max */}
-        <div className="space-y-3 pt-2 border-t border-zinc-800/60">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-300">Redimensionar Max</span>
-            <input
-              type="checkbox"
-              checked={useMaxWidth}
-              onChange={(e) => setUseMaxWidth(e.target.checked)}
-              className="accent-blue-600 rounded"
-            />
-          </div>
-          {useMaxWidth && (
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <span className="text-[10px] text-zinc-500">Ancho Máx</span>
-                <input
-                  type="number"
-                  value={maxWidth}
-                  onChange={(e) => setMaxWidth(parseInt(e.target.value) || 1200)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-white"
-                />
-              </div>
-              <div>
-                <span className="text-[10px] text-zinc-500">Alto Máx</span>
-                <input
-                  type="number"
-                  value={maxHeight}
-                  onChange={(e) => setMaxHeight(parseInt(e.target.value) || 1200)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-white"
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

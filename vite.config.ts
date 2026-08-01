@@ -9,8 +9,10 @@ export default defineConfig(() => {
     build: { rollupOptions: { input: { playground: "app/playground/index.html", documentation: "app/documentation/index.html" } } },
     plugins: [react(), tailwindcss()],
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
-        
+        'react': path.resolve(__dirname, 'node_modules/react'),
+        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
         'jl-optimize-images': path.resolve(__dirname, 'packages/image-compressor/src/index.ts'),
         'jl-optimize-images-react': path.resolve(__dirname, 'packages/jl-optimize-images-react/src/index.ts'),
       },

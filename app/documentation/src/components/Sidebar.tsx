@@ -83,9 +83,9 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           <Layers className="w-4 h-4" /> Avanzado
         </button>
       </nav>
-      <div className="p-4 border-t border-slate-200">
-        <a href="/app/playground/" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold transition shadow-sm">
-          <Zap className="w-4 h-4" /> Ir al Playground
+      <div className="p-4 border-t border-slate-200 space-y-2">
+        <a href="/app/playground/" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+          <Zap className="w-4 h-4" /> Compressor Playground
         </a>
       </div>
     </aside>

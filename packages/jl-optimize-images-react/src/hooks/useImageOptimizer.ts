@@ -51,14 +51,12 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
     imagesRef.current = images;
   }, [images]);
 
-  // Cleanup object URLs on unmount
+  // Cleanup object URLs and bitmap cache on unmount
   useEffect(() => {
     return () => {
       imagesRef.current.forEach((img) => {
         URL.revokeObjectURL(img.originalUrl);
-        // Compressed URLs in result are also cleaned up by browser, or we can revoke if we want,
-        // but since result.dataUrl is created via FileReader (readAsDataURL), it is a base64 string, not an object URL!
-        // Wait, yes, let's verify if dataUrl is base64. Yes, compressImage produces base64 dataUrl or object URL? Let's check!
+        img.compressor.dispose();
       });
     };
   }, []);
@@ -244,6 +242,7 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
       const target = prev.find((img) => img.id === id);
       if (target) {
         URL.revokeObjectURL(target.originalUrl);
+        target.compressor.dispose();
       }
 
       const filtered = prev.filter((img) => img.id !== id);
@@ -258,6 +257,7 @@ export function useImageOptimizer(options: UseImageOptimizerProps) {
   const clearImages = useCallback(() => {
     imagesRef.current.forEach((img) => {
       URL.revokeObjectURL(img.originalUrl);
+      img.compressor.dispose();
     });
     setImages([]);
     setSelectedId(null);

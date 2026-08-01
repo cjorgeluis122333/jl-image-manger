@@ -1,9 +1,6 @@
 import { BatchCompressionOptions, CompressionResult } from './types';
 import { compressImage } from './compress';
-
-// Helper to yield control back to the main thread, 
-// allowing the browser UI to re-render and stay responsive.
-const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 5));
+import { yieldToMain } from './utils';
 
 /**
  * Batch compress multiple images with progress reporting and concurrency control.

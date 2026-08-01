@@ -9,6 +9,10 @@ export interface CompressionOptions {
   mimeType?: 'image/jpeg' | 'image/webp' | 'image/png';
   /** Whether to maintain aspect ratio when resizing (default: true) */
   maintainAspectRatio?: boolean;
+  /** Background color for canvas fill (e.g. '#ffffff'). Default: '#ffffff' for JPEG */
+  backgroundColor?: string;
+  /** Pre-decoded image source (ImageBitmap or HTMLImageElement) to bypass re-decoding */
+  sourceImage?: ImageBitmap | HTMLImageElement;
   /** Progress callback (0 to 100) */
   onProgress?: (progress: number) => void;
 }

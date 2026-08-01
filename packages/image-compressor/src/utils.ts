@@ -21,3 +21,21 @@ export function blobToDataURL(blob: Blob): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
+
+/**
+ * Yield control back to main thread / event loop to avoid UI freezing
+ */
+export function yieldToMain(): Promise<void> {
+  const globalScheduler = (globalThis as any).scheduler;
+  if (globalScheduler && typeof globalScheduler.yield === 'function') {
+    return globalScheduler.yield();
+  }
+  if (typeof MessageChannel !== 'undefined') {
+    return new Promise((resolve) => {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = () => resolve();
+      channel.port2.postMessage(null);
+    });
+  }
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}

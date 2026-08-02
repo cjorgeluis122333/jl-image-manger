@@ -13,10 +13,24 @@
     "compression",
     "compressor",
     "optimizer",
+    "webp",
+    "exif",
+    "imagebitmap",
+    "resize",
+    "canvas",
     "typescript",
-    "vanilla-js"
+    "vanilla-js",
+    "batch-compression"
   ],
-  "author": "AI Studio",
+  "author": "Jorge Luis Pabón Izquierdo",
+  "homepage": "https://jl-image-manger.vercel.app/app/documentation/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjorgeluis122333/jl-image-manger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cjorgeluis122333/jl-image-manger/issues"
+  },
   "license": "MIT",
   "devDependencies": {
     "typescript": "~5.8.2"

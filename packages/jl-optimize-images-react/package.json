@@ -27,6 +27,27 @@
     "tsup": "^8.0.2",
     "typescript": "^5.0.0"
   },
-  "author": "",
+  "keywords": [
+    "react",
+    "image",
+    "compression",
+    "compressor",
+    "optimizer",
+    "image-comparison",
+    "before-after",
+    "useImageOptimizer",
+    "webp",
+    "batch-processing",
+    "typescript"
+  ],
+  "author": "Jorge Luis Pabón Izquierdo",
+  "homepage": "https://jl-image-manger.vercel.app/app/documentation/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjorgeluis122333/jl-image-manger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cjorgeluis122333/jl-image-manger/issues"
+  },
   "license": "MIT"
 }

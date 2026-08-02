@@ -1,38 +1,86 @@
 # jl-optimize-images 🚀
 
-A lightweight, ultra-fast, pure **TypeScript/JavaScript** library with zero external dependencies to compress, pre-load, and resize images directly in the browser with high efficiency.
+[![npm version](https://img.shields.io/npm/v/jl-optimize-images?color=blue&style=flat-square)](https://www.npmjs.com/package/jl-optimize-images)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-success?style=flat-square)](https://www.npmjs.com/package/jl-optimize-images)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/cjorgeluis122333/jl-image-manger)
 
-Perfect for optimizing avatars, profile pictures, e-commerce product photos, and any file upload before sending it to the server, improving user experience and drastically reducing bandwidth consumption.
+> **Ultra-fast, zero-dependency in-browser image compression engine for TypeScript and JavaScript.**
+> Hardware-accelerated GPU decoding via `ImageBitmap`, automatic EXIF rotation, step-down downscaling, and non-blocking UI batch processing (`yieldToMain`).
 
 ---
 
-## ✨ High-Performance Features
+## 🔗 Quick Links & Live Demos
 
-- 📦 **Zero Dependencies**: Native code optimized using the Canvas API and modern browser APIs.
-- ⚡ **Hardware-Accelerated Decoding Cache (`ImageBitmap`)**: Decodes the image only once on the GPU/graphics memory. Subsequent compressions or real-time interactive adjustments (like quality sliders) take milliseconds without re-decoding the source file.
-- 📸 **Automatic EXIF Orientation**: Natively and automatically corrects the orientation of photos taken with mobile phones or cameras using `createImageBitmap(blob, { imageOrientation: 'from-image' })`.
-- 📉 **Fractional Step-Down Scaling**: A progressive halving downscaling algorithm to prevent aliasing artifacts (jagged pixels) and maintain maximum sharpness even during extreme resolution reductions.
-- 🟢 **Smooth UI Thread Preservation (`yieldToMain`)**: Splits heavy batch processing into asynchronous tasks, periodically yielding control to the browser's event loop (`scheduler.yield()` or `MessageChannel`), keeping the UI at a stable, responsive 60 FPS.
-- 🎨 **Multi-Format Support**: Native export to `image/webp`, `image/jpeg`, and `image/png`.
-- ⚙️ **Dimension Control**: On-the-fly adjustment of quality (`quality`), maximum dimensions (`maxWidth`, `maxHeight`), and background color for transparencies (`backgroundColor`).
-- 📐 **Flexible Aspect Ratio**: Maintains the original ratio by default, or allows forcing exact dimensions (`maintainAspectRatio: false`).
-- 📊 **Detailed Analytics**: Returns exact sizes (original vs compressed) and the real weight savings percentage immediately.
+| Resource | URL |
+| :--- | :--- |
+| 🌐 **Interactive Documentation** | [https://jl-image-manger.vercel.app/app/documentation/](https://jl-image-manger.vercel.app/app/documentation/) |
+| ⚡ **Live Playground** | [https://jl-image-manger.vercel.app/app/playground/](https://jl-image-manger.vercel.app/app/playground/) |
+| 🐙 **GitHub Repository** | [https://github.com/cjorgeluis122333/jl-image-manger](https://github.com/cjorgeluis122333/jl-image-manger) |
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Why jl-optimize-images?](#-why-jl-optimize-images)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Advanced Usage](#-advanced-usage)
+  - [Avatar Optimization](#1-avatar-optimization-400x400)
+  - [Transparent PNG to White JPEG](#2-transparent-png-to-white-jpeg-conversion)
+  - [Concurrent Batch Compression](#3-concurrent-batch-processing)
+- [API Reference](#-api-reference)
+  - [ImageCompressor Class](#imagecompressor-class)
+  - [CompressionOptions](#compressionoptions)
+  - [CompressionResult](#compressionresult)
+  - [compressBatch Function](#compressbatch-function)
+- [Browser Compatibility](#-browser-compatibility)
+- [SEO & Indexing Keywords](#-keywords)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+- 📦 **Zero External Dependencies**: Lightweight native library built strictly on modern Canvas API and Web APIs.
+- ⚡ **Hardware-Accelerated GPU Cache (`ImageBitmap`)**: Decodes the image once into GPU memory. Real-time adjustments (e.g. quality sliders) execute in milliseconds without re-decoding from disk.
+- 📸 **Automatic EXIF Orientation**: Natively corrects photo orientation from mobile devices and digital cameras via `createImageBitmap(blob, { imageOrientation: 'from-image' })`.
+- 📉 **Fractional Step-Down Scaling**: Progressive halving downscaling algorithm that eliminates aliasing artifacts (jagged pixels) and maintains maximum sharpness.
+- 🟢 **Smooth 60 FPS UI Thread Preservation (`yieldToMain`)**: Prevents browser freeze during heavy batch operations by yielding execution control to the event loop (`scheduler.yield()` or `MessageChannel`).
+- 🎨 **Multi-Format Export**: Native conversion support for `image/webp`, `image/jpeg`, and `image/png`.
+- ⚙️ **Dimension & Quality Controls**: Custom target quality, maximum width/height constraints, aspect ratio locking, and custom background fill colors for transparent images.
+- 📊 **Instant Metrics & Analytics**: Immediate feedback on byte sizes (original vs compressed) and percentage savings.
+
+---
+
+## 💡 Why `jl-optimize-images`?
+
+Compressing images directly in the browser before sending them to a server saves **up to 80-90% of upload bandwidth**, improves mobile user experience, reduces cloud storage costs, and speeds up form submissions.
+
+Traditional image compression libraries often cause UI stuttering or loss of sharpness during extreme resolution reduction. `jl-optimize-images` addresses these challenges with GPU decoding memory caching, non-blocking asynchronous yielding, and step-down canvas scaling.
 
 ---
 
 ## 📥 Installation
 
-Install the package using your favorite package manager:
+Install the package via your preferred package manager:
 
 ```bash
 npm install jl-optimize-images
 ```
 
-or with yarn / pnpm / bun:
+Or using **yarn**, **pnpm**, or **bun**:
 
 ```bash
+# Yarn
 yarn add jl-optimize-images
+
+# pnpm
 pnpm add jl-optimize-images
+
+# Bun
 bun add jl-optimize-images
 ```
 
@@ -40,64 +88,81 @@ bun add jl-optimize-images
 
 ## 🚀 Quick Start
 
-The process is based on instantiating the `ImageCompressor` class with your original image and calling the `compress()` method.
-
 ```typescript
 import { ImageCompressor } from 'jl-optimize-images';
 
-// 1. Instantiate the class with a file (e.g., from an HTML input)
-const file = event.target.files[0];
+// 1. Get image file from an input element
+const fileInput = document.querySelector<HTMLInputElement>('#upload')!;
+const file = fileInput.files![0];
+
+// 2. Instantiate ImageCompressor
 const compressor = new ImageCompressor(file);
 
-// Optional but highly recommended for interactive UIs: pre-load ImageBitmap into memory
+// 3. (Optional but recommended) Pre-load into GPU memory for ultra-fast performance
 await compressor.preload();
 
-// 2. Compress using default options (85% quality and webp format)
-const result = await compressor.compress();
+// 4. Compress to WebP at 85% quality
+const result = await compressor.compress({
+  quality: 0.85,
+  mimeType: 'image/webp',
+  maxWidth: 1200,
+});
 
-// 3. Ready to use or upload!
-console.log(`Original: ${result.originalSize} bytes`);
-console.log(`Compressed: ${result.compressedSize} bytes`);
-console.log(`Savings: ${result.savingsPercentage.toFixed(1)}%`);
+// 5. Inspect analytics & use output
+console.log(`Original: ${(result.originalSize / 1024).toFixed(1)} KB`);
+console.log(`Compressed: ${(result.compressedSize / 1024).toFixed(1)} KB`);
+console.log(`Saved: ${result.savingsPercentage.toFixed(1)}%`);
 
-// You can assign result.dataUrl to an <img> for immediate preview
-document.getElementById('preview-avatar').src = result.dataUrl;
+// Display preview immediately
+document.querySelector<HTMLImageElement>('#preview')!.src = result.dataUrl;
 
-// Remember to release internal memory of the compressor when no longer needed
+// 6. Release graphics memory when finished
 compressor.dispose();
 ```
 
 ---
 
-## 🛠️ Advanced Configuration Examples
+## 🛠️ Advanced Usage
 
-### 1. Standard Optimization for Avatars (Max 400x400)
+### 1. Avatar Optimization (400x400)
 ```typescript
-const result = await compressor.compress({
+const avatarResult = await compressor.compress({
   maxWidth: 400,
   maxHeight: 400,
-  quality: 0.8
+  quality: 0.8,
+  mimeType: 'image/webp',
+  maintainAspectRatio: true,
 });
 ```
 
-### 2. Conversion with Background Fill (Transparent PNG to White JPEG)
+### 2. Transparent PNG to White JPEG Conversion
+When converting transparent PNGs to JPEG format, fill transparent pixels with a solid background color to avoid black backgrounds:
+
 ```typescript
-const result = await compressor.compress({
+const jpegResult = await compressor.compress({
   quality: 0.85,
   mimeType: 'image/jpeg',
-  backgroundColor: '#ffffff' // Fills transparent areas to prevent a black background in JPEG
+  backgroundColor: '#ffffff', // Fills transparent alpha channel with white
 });
 ```
 
-### 3. Efficient Concurrent Batch Processing
+### 3. Concurrent Batch Processing
+Process multiple images in parallel with controlled concurrency to prevent thread contention:
+
 ```typescript
 import { compressBatch } from 'jl-optimize-images';
 
-const files = event.target.files; // FileList
-const batchResults = await compressBatch(files, {
+const fileList = fileInput.files!; // FileList or File[]
+
+const batchResults = await compressBatch(fileList, {
   quality: 0.8,
   mimeType: 'image/webp',
-  concurrency: 3 // Parallel processing limit to avoid locking up client execution threads
+  maxWidth: 1920,
+  concurrency: 3, // Process 3 images concurrently
+});
+
+batchResults.forEach((res, index) => {
+  console.log(`Image ${index + 1}: ${res.savingsPercentage.toFixed(1)}% saved`);
 });
 ```
 
@@ -108,53 +173,79 @@ const batchResults = await compressBatch(files, {
 ### `ImageCompressor` Class
 
 ```typescript
-class ImageCompressor {
+export class ImageCompressor {
   constructor(source: File | Blob);
-  
+
   /**
-   * Pre-loads the resource by decoding it into a high-performance ImageBitmap.
+   * Pre-loads and decodes the image into an ImageBitmap in GPU cache.
    */
   preload(): Promise<void>;
 
   /**
-   * Performs the compression applying specified options.
+   * Compresses the image using the provided compression options.
    */
   compress(options?: CompressionOptions): Promise<CompressionResult>;
 
   /**
-   * Releases the ImageBitmap memory stored in cache.
+   * Releases stored ImageBitmap memory cache.
    */
   dispose(): void;
 }
 ```
 
-### Compression Options (`CompressionOptions`)
+### `CompressionOptions`
 
-| Property | Type | Default | Description |
+| Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `quality` | `number` | `0.85` | Compression output quality (range from `0.01` to `1.0`). |
-| `maxWidth` | `number` | `undefined` | Maximum width of the resulting image in pixels. |
-| `maxHeight` | `number` | `undefined` | Maximum height of the resulting image in pixels. |
-| `mimeType` | `'image/jpeg' \| 'image/webp' \| 'image/png'` | `'image/webp'` | Desired output MIME format. |
-| `maintainAspectRatio` | `boolean` | `true` | If `true`, resizes while maintaining the original proportions. |
-| `backgroundColor` | `string` | `undefined` | Background color (e.g. `'#ffffff'`) to fill transparent areas of PNG/WebP when exporting to formats without an alpha channel (JPEG). |
+| `quality` | `number` | `0.85` | Compression quality rating between `0.01` and `1.0`. |
+| `maxWidth` | `number` | `undefined` | Maximum width constraint in pixels. |
+| `maxHeight` | `number` | `undefined` | Maximum height constraint in pixels. |
+| `mimeType` | `'image/webp' \| 'image/jpeg' \| 'image/png'` | `'image/webp'` | Target output image format. |
+| `maintainAspectRatio` | `boolean` | `true` | Preserves width/height ratio during resizing. |
+| `backgroundColor` | `string` | `undefined` | Solid color (e.g., `'#ffffff'`) to replace transparent alpha channel when converting to formats like JPEG. |
 
-### Compression Result (`CompressionResult`)
-
-The `compress()` method resolves a promise containing:
+### `CompressionResult`
 
 ```typescript
-interface CompressionResult {
-  file: File;               // The newly compressed file in File format
-  dataUrl: string;          // base64 representation for immediate previews
-  originalSize: number;     // Original image size in bytes
-  compressedSize: number;   // Resulting compressed image size in bytes
-  savingsPercentage: number; // Size savings percentage achieved (0 to 100)
+export interface CompressionResult {
+  file: File;                // Compressed File object ready for FormData / fetch upload
+  dataUrl: string;           // Base64 Data URL string for immediate browser rendering
+  originalSize: number;      // Input size in bytes
+  compressedSize: number;    // Output size in bytes
+  savingsPercentage: number;  // Weight reduction percentage (0% to 100%)
 }
 ```
+
+### `compressBatch` Function
+
+```typescript
+export function compressBatch(
+  files: FileList | File[],
+  options?: CompressionOptions & { concurrency?: number }
+): Promise<CompressionResult[]>;
+```
+
+---
+
+## 🌐 Browser Compatibility
+
+`jl-optimize-images` is compatible with all modern web browsers supporting HTML5 Canvas API and `ImageBitmap`:
+
+- **Chrome / Edge**: 79+
+- **Firefox**: 84+
+- **Safari**: 15+
+- **Opera**: 66+
+- **iOS Safari / Android Chrome**: Supported
+
+---
+
+## 🏷️ Keywords
+
+`image compression` `client-side image compressor` `browser image optimization` `webp converter` `exif auto rotation` `imagebitmap gpu decoding` `typescript image resizer` `javascript image compress` `canvas image resize` `batch image compression` `vanilla js image optimizer`
 
 ---
 
 ## 📄 License
 
-MIT © [jl-optimize-images](https://github.com/jlcpabonisquierdo)
+MIT © [Jorge Luis Pabón Izquierdo](https://github.com/cjorgeluis122333) — [jl-image-manger Repository](https://github.com/cjorgeluis122333/jl-image-manger)
+

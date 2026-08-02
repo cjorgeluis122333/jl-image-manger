@@ -12,11 +12,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('get-started');
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-['Plus_Jakarta_Sans',sans-serif]">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content */}
-      <main className="flex-1 p-10 h-screen overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 md:p-10 md:h-screen md:overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           {activeTab === 'get-started' && <GetStarted />}
           {activeTab === 'basic' && <BasicExample />}

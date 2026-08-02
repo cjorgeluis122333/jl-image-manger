@@ -241,10 +241,10 @@ export const ImageComparison: React.FC<ImageComparisonProps> = ({
         style={{ left: `${sliderPosition}%`, backgroundColor: sliderColor, willChange: 'left' }}
       >
         <div 
-          className="w-8 h-8 rounded-full border-2 border-white text-white flex items-center justify-center shadow-xl absolute left-1/2 transform -translate-x-1/2"
+          className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-white text-white flex items-center justify-center shadow-2xl absolute left-1/2 transform -translate-x-1/2 touch-manipulation active:scale-110 transition-transform"
           style={{ backgroundColor: sliderColor }}
         >
-          <MoveHorizontal className="w-4 h-4" />
+          <MoveHorizontal className="w-5 h-5 sm:w-4 sm:h-4" />
         </div>
       </div>
 

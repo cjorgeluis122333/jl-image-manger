@@ -98,7 +98,6 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
     try {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      // A beautiful autumn forest landscape photo with sharp fine details to show off compression
       img.src = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&h=600&q=80';
       await new Promise((resolve, reject) => {
         img.onload = resolve;
@@ -111,8 +110,6 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(img, 0, 0, 800, 600);
-        
-        // Add a clean banner text
         ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
         ctx.fillRect(20, 20, 220, 45);
         ctx.fillStyle = 'white';
@@ -161,32 +158,32 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 mb-12">
-      <h1 className="text-3xl font-bold text-slate-900 mb-4">{title}</h1>
-      <p className="text-slate-600 mb-8 leading-relaxed">{description}</p>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 mb-8 sm:mb-12">
+      <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4">{title}</h1>
+      <p className="text-slate-600 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed">{description}</p>
 
       {/* Interactive UI */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Pruébalo ahora</h2>
+      <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-xs mb-8">
+        <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Pruébalo ahora</h2>
         
         {!file ? (
-          <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 p-12 text-center">
-            <Sparkles className="w-12 h-12 text-indigo-500 mb-4 animate-pulse" />
-            <h3 className="text-lg font-medium text-slate-800 mb-2">Sube una imagen para probar</h3>
-            <p className="text-sm text-slate-500 max-w-sm mb-6">
+          <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 p-6 sm:p-12 text-center">
+            <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-500 mb-4 animate-pulse" />
+            <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-2">Sube una imagen para probar</h3>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-sm mb-6 leading-relaxed">
               Selecciona una imagen para ver el código en acción.
             </p>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl shadow transition"
+                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition active:scale-95 min-h-[44px]"
               >
                 Subir Imagen
               </button>
               <button
                 onClick={loadTestImage}
-                className="px-6 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition"
+                className="px-6 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition active:scale-95 min-h-[44px]"
               >
                 Usar foto de ejemplo
               </button>
@@ -195,7 +192,7 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
         ) : result ? (
           <div className="flex flex-col gap-4">
              <div className="flex justify-between items-center">
-               <button onClick={() => {setFile(null); setResult(null);}} className="text-sm text-indigo-600 font-medium hover:underline">
+               <button onClick={() => {setFile(null); setResult(null);}} className="text-xs sm:text-sm text-indigo-600 font-medium hover:underline">
                  Probar otra imagen
                </button>
              </div>
@@ -211,12 +208,12 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
                   handleSliderMove(e.touches[0].clientX);
                 }
               }}
-              className="relative h-[400px] border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-inner select-none cursor-ew-resize flex items-center justify-center"
+              className="relative h-[280px] sm:h-[350px] md:h-[400px] border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 shadow-inner select-none cursor-ew-resize flex items-center justify-center touch-none"
             >
               {result.isCompressing ? (
-                <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10">
+                <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3 z-10">
                   <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin" />
-                  <span className="text-sm text-slate-300 font-medium">Comprimiendo...</span>
+                  <span className="text-xs sm:text-sm text-slate-300 font-medium">Comprimiendo...</span>
                 </div>
               ) : result.dataUrl ? (
                 <img
@@ -227,8 +224,8 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
               ) : null}
               
               {!result.isCompressing && (
-                <div className="absolute top-4 right-4 z-20 px-3 py-1.5 bg-slate-900/80 backdrop-blur-md rounded-xl text-xs font-mono text-emerald-400 border border-slate-700 shadow-lg flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-slate-900/80 backdrop-blur-md rounded-xl text-[10px] sm:text-xs font-mono text-emerald-400 border border-slate-700 shadow-lg flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></span>
                   <span>Comprimido: {formatSize(result.compressedSize)}</span>
                 </div>
               )}
@@ -248,8 +245,8 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
                     style={{ width: containerRef.current ? `${containerRef.current.clientWidth}px` : '100vw', height: '100%', maxWidth: 'none' }}
                   />
                 </div>
-                <div className="absolute top-4 left-4 z-20 px-3 py-1.5 bg-slate-900/80 backdrop-blur-md rounded-xl text-xs font-mono text-slate-300 border border-slate-700 shadow-lg flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-20 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-slate-900/80 backdrop-blur-md rounded-xl text-[10px] sm:text-xs font-mono text-slate-300 border border-slate-700 shadow-lg flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-400"></span>
                   <span>Original: {formatSize(result.originalSize)}</span>
                 </div>
               </div>
@@ -258,25 +255,25 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
                 className="absolute top-0 bottom-0 w-1 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)] z-30 pointer-events-none flex items-center justify-center"
                 style={{ left: `${sliderPosition}%` }}
               >
-                <div className="w-8 h-8 rounded-full bg-indigo-600 border-2 border-white text-white flex items-center justify-center shadow-xl">
+                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-indigo-600 border-2 border-white text-white flex items-center justify-center shadow-xl">
                   <MoveHorizontal className="w-4 h-4" />
                 </div>
               </div>
             </div>
 
             {!result.isCompressing && (
-               <div className="grid grid-cols-3 gap-4">
-                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex sm:block items-center justify-between">
                    <span className="text-[10px] font-bold text-slate-500 uppercase">Ahorro</span>
-                   <p className="text-lg font-medium text-emerald-600">{result.savingsPercentage.toFixed(1)}%</p>
+                   <p className="text-base sm:text-lg font-medium text-emerald-600">{result.savingsPercentage.toFixed(1)}%</p>
                  </div>
-                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex sm:block items-center justify-between">
                    <span className="text-[10px] font-bold text-slate-500 uppercase">Original</span>
-                   <p className="text-lg font-medium text-slate-700">{formatSize(result.originalSize)}</p>
+                   <p className="text-base sm:text-lg font-medium text-slate-700">{formatSize(result.originalSize)}</p>
                  </div>
-                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex sm:block items-center justify-between">
                    <span className="text-[10px] font-bold text-slate-500 uppercase">Final</span>
-                   <p className="text-lg font-medium text-slate-700">{formatSize(result.compressedSize)}</p>
+                   <p className="text-base sm:text-lg font-medium text-slate-700">{formatSize(result.compressedSize)}</p>
                  </div>
                </div>
             )}
@@ -284,17 +281,17 @@ export function InteractiveExample({ title, description, code, onCompress }: Int
         ) : null}
       </div>
 
-      <div className="bg-slate-900 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-slate-900 rounded-xl overflow-hidden shadow-xs">
         <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-          <span className="text-sm font-medium text-slate-300">Código del Ejemplo</span>
+          <span className="text-xs sm:text-sm font-medium text-slate-300">Código del Ejemplo</span>
           <button 
             onClick={() => navigator.clipboard.writeText(code)}
-            className="text-xs text-slate-400 hover:text-white transition"
+            className="text-xs text-slate-400 hover:text-white transition px-2 py-1 rounded bg-slate-800/60"
           >
             Copiar
           </button>
         </div>
-        <pre className="p-6 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed">
+        <pre className="p-4 sm:p-6 overflow-x-auto text-xs sm:text-sm font-mono text-slate-300 leading-relaxed">
           {code}
         </pre>
       </div>

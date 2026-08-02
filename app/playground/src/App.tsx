@@ -9,6 +9,7 @@ import { PreviewArea } from './components/PreviewArea';
 export default function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('preview');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   // Compression options state
   const [quality, setQuality] = useState<number>(0.85);
@@ -65,7 +66,12 @@ export default function App() {
 
   return (
     <div className="h-screen bg-[#09090b] text-zinc-100 flex flex-col overflow-hidden font-sans">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Header
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+      />
 
       <input
         ref={singleFileInputRef}
@@ -87,7 +93,7 @@ export default function App() {
       {activeTab === 'code' ? (
         <CodeView />
       ) : (
-        <main className="flex-1 flex overflow-hidden">
+        <main className="flex-1 flex overflow-hidden relative">
           <Sidebar
             images={images}
             selectedId={selectedId}
@@ -103,6 +109,8 @@ export default function App() {
             mimeType={mimeType}
             setMimeType={setMimeType}
             setImages={() => {}}
+            isMobileOpen={isMobileSidebarOpen}
+            onCloseMobile={() => setIsMobileSidebarOpen(false)}
           />
           <PreviewArea 
             images={images} 

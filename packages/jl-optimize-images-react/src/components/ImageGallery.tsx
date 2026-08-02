@@ -91,12 +91,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   const defaultRenderRemoveButton = (id: string) => (
     <button
       onClick={(e) => onRemove(id, e)}
-      className={customClasses.removeButton || "absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"}
+      className={customClasses.removeButton || "absolute -top-1.5 -right-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full p-1.5 sm:p-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shadow-md focus:opacity-100 focus:outline-none z-10"}
       style={customStyles.removeButton}
       title={deleteLabel}
       aria-label={deleteLabel}
     >
-      <Trash2 className={customClasses.removeButtonIcon || "w-3 h-3"} />
+      <Trash2 className={customClasses.removeButtonIcon || "w-3.5 h-3.5 sm:w-3 sm:h-3"} />
     </button>
   );
 
